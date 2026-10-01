@@ -72,7 +72,7 @@ class DataRequestVariable:
     Container Class for a data request variable
     """
     branded_variable_name: str
-    branding_label: str
+    branding_suffix: str
     cell_measures: str
     cell_methods: str
     cmip6_compound_name: str
@@ -129,6 +129,7 @@ class CMORvar:
     long_name: str
     flag_values: str
     flag_meanings: str
+    type: str
 
     def table_name(self):
         """
@@ -225,7 +226,11 @@ def write_table(tables, destination):
         # construct variable_entry section
         template["variable_entry"] = {}
         for bvname, cmorvar in tables[realm].items():
-            template['variable_entry'][bvname] = cmorvar.json_for_table()
+            # remove type if not an exception to that described in header
+            variable_json = cmorvar.json_for_table()
+            if template['Header']['type'] == variable_json['type']:
+                del variable_json['type']
+            template['variable_entry'][bvname]  = variable_json
         
         # checksum
         set_checksum(template)
@@ -263,14 +268,20 @@ def dr_coord_to_cmor_dict(coord):
     else:
         cmor_coord['climatology'] = ""
 
+    # handle integer requested values as well as float
+    if cmor_coord['type'] == 'integer':
+        reqfmt = int
+    else:
+        reqfmt = float
+        
     # deal with lists
     if cmor_coord['requested']:
         try:
-            cmor_coord['requested'] = [str(float(i)) for i in cmor_coord['requested'].split()]
+            cmor_coord['requested'] = [str(reqfmt(i)) for i in cmor_coord['requested'].split()]
         except ValueError:
             cmor_coord['requested'] = [str(i) for i in cmor_coord['requested'].split()]
     if cmor_coord['requested_bounds']:
-        cmor_coord['requested_bounds'] = [str(float(i)) for i in cmor_coord['requested_bounds'].split()]
+        cmor_coord['requested_bounds'] = [str(reqfmt(i)) for i in cmor_coord['requested_bounds'].split()]
 
     # convert numbers to strings (even if they are zero)
     for i in ['tolerance', 'valid_max', 'valid_min']:
@@ -312,6 +323,10 @@ def construct_coordinates(dr_coords, reference_coordinate_file):
         'depth_coord_half',
         'hybrid_height',
         'hybrid_height_half',
+        'hybrid_sigma_ln_pressure',
+        'hybrid_sigma_ln_pressure_half',
+        'modified_sleve_model_level',
+        'modified_sleve_half_level',
         'ocean_sigma',
         'ocean_sigma_half',
         'ocean_sigma_z',

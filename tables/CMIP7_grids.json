@@ -1,7 +1,7 @@
 {
     "Header": {
         "Conventions": "CF-1.12",
-        "checksum": "md5: bcfd8e7ffabfb9e734ef1f2283a33c85",
+        "checksum": "md5: 12e6f80c2fc3df7d7d2b84f3c0f5499f",
         "cmor_version": "3.15",
         "generic_levels": "",
         "int_missing_value": "-999",
@@ -11,7 +11,7 @@
         "positive": "",
         "product": "model-output",
         "realm": "",
-        "table_date": "2026-06-22 17:37:39",
+        "table_date": "2026-09-15 12:08:04",
         "table_id": "grids",
         "type": "real",
         "valid_max": "",
@@ -92,9 +92,9 @@
         },
         "x_deg": {
             "axis": "X",
-            "long_name": "x coordinate of projection",
+            "long_name": "x angular coordinate of projection",
             "out_name": "x",
-            "standard_name": "projection_x_coordinate",
+            "standard_name": "projection_x_angular_coordinate",
             "type": "double",
             "units": "degrees"
         },
@@ -108,9 +108,9 @@
         },
         "y_deg": {
             "axis": "Y",
-            "long_name": "y coordinate of projection",
+            "long_name": "y angular coordinate of projection",
             "out_name": "y",
-            "standard_name": "projection_y_coordinate",
+            "standard_name": "projection_y_angular_coordinate",
             "type": "double",
             "units": "degrees"
         }

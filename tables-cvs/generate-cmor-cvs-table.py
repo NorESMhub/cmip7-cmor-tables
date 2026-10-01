@@ -8,13 +8,17 @@ import datetime as dt
 import itertools
 import json
 import re
-from functools import partial
+import warnings
+from functools import cache, partial
 from pathlib import Path
 from typing import Annotated, Any, TypeAlias
 
 import esgvoc.api as ev_api
+import requests
 import typer
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 CMOR_MAX_STRING_LENGTH = 1023
 """
@@ -843,6 +847,149 @@ def get_cmor_nominal_resolution_defintions(
     return sorted(res)
 
 
+EMD_MODEL_BASE_URL = (
+    "https://raw.githubusercontent.com/WCRP-CMIP/"
+    "Essential-Model-Documentation/src-data/model"
+)
+"""
+Base URL for the model files in the Essential Model Documentation (EMD)
+
+See https://github.com/WCRP-CMIP/Essential-Model-Documentation/tree/src-data/model
+"""
+
+
+@cache
+def get_emd_session() -> requests.Session:
+    """
+    Get a [`requests.Session`][] configured to retry EMD requests
+
+    We hit the EMD (see [`EMD_MODEL_BASE_URL`][]) once per source ID,
+    which can trip GitHub's rate limits and return HTTP 429 (too many requests).
+    The session retries on 429 and 5xx responses using an exponential backoff,
+    and respects the `Retry-After` header when the server provides one.
+
+    The session is cached so connections are reused across calls.
+    """
+    retry = Retry(
+        total=5,
+        backoff_factor=1.0,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=("GET",),
+        respect_retry_after_header=True,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+
+    session = requests.Session()
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+    return session
+
+
+def is_emd_grid_part(part: str) -> bool:
+    """
+    Is `part` a grid part of an EMD model component?
+
+    A grid part is one of:
+
+    - a horizontal ("h") or vertical ("v") token followed by one or more digits,
+      e.g. "h125" or "v40"
+    - "no-horizontal" or "no-vertical", used when a component has no such grid
+    """
+    if part in ("no-horizontal", "no-vertical"):
+        return True
+
+    return len(part) > 1 and part[0] in ("h", "v") and part[1:].isdigit()
+
+
+def get_source_suffix_from_emd(drs_name: str) -> str:
+    """
+    Get the `source` suffix for a given source ID from the Essential Model Documentation
+
+    We read the relevant model file directly from the EMD
+    (see [`EMD_MODEL_BASE_URL`][]).
+    This is used as a fallback for the cases where esgvoc doesn't
+    (yet) expose the model components for the source.
+
+    The EMD file name is the lower-cased source ID (`drs_name`).
+    We read the model components from that file,
+    then parse each component into a "<realm>: <model name>" pair
+    before joining all the resulting pairs with "; ".
+
+    Each component is of the form "<realm>_<model name>_<grid parts>",
+    where the realm can itself contain underscores or hyphens
+    (e.g. "land_surface" or "land-surface").
+    The grid parts are a horizontal and/or vertical token
+    (see [`is_emd_grid_part`][]), e.g. "h125", "v40", "no-horizontal" or
+    "no-vertical". There may be more than one or, for some components, only one
+    (e.g. "sea-ice_fesim-2-7_h114_no-vertical" has a horizontal part
+    and an explicit "no-vertical").
+    We therefore strip off any trailing grid parts,
+    then treat the last of the remaining parts as the model name
+    and re-join the rest to recover the realm.
+    Any "_" in the realm is then replaced with "-" for the output.
+
+    As a robustness check, we check that each hyphenated realm
+    is in the file's "dynamic_components".
+    A warning (rather than an error) is raised if a realm can't be found there.
+    """
+    session = get_emd_session()
+
+    # The EMD file names are the lower-cased source ID
+    url = f"{EMD_MODEL_BASE_URL}/{drs_name.lower()}.json"
+    response = session.get(url, timeout=30)
+    response.raise_for_status()
+    model_info = response.json()
+
+    # The key holding the model components has been called both
+    # "model_components" and "component_configs" across EMD files,
+    # so support both.
+    for key in ("model_components", "component_configs"):
+        if key in model_info:
+            model_components = model_info[key]
+            break
+    else:
+        msg = (
+            f"Could not find model components for {drs_name!r} at {url}. "
+            f"Available keys: {sorted(model_info)}"
+        )
+        raise KeyError(msg)
+
+    # Used to sanity check the parsed realms
+    dynamic_components = model_info.get("dynamic_components", [])
+
+    source_l = []
+    for component in sorted(model_components):
+        parts = component.split("_")
+
+        # Strip off any trailing grid parts (e.g. "h125", "v40").
+        # There may be one or more of these, so we can't assume a fixed number.
+        # We always keep at least two parts (the realm and the model name).
+        while len(parts) > 2 and is_emd_grid_part(parts[-1]):
+            parts.pop()
+
+        # The last remaining part is the model name,
+        # the rest (re-joined) is the realm, which can itself contain underscores.
+        model_name = parts[-1]
+        realm = "_".join(parts[:-1])
+
+        # Sanity check: the realm (with "_" replaced by "-")
+        # should be one of the file's `dynamic_components`.
+        realm_hyphenated = realm.replace("_", "-")
+        if realm_hyphenated not in dynamic_components:
+            warnings.warn(
+                f"Realm {realm_hyphenated!r} (parsed from component {component!r} "
+                f"for source {drs_name!r}) is not in the model's "
+                f"dynamic_components {dynamic_components!r}"
+            )
+
+        source_l.append(f"{realm_hyphenated}: {model_name}")
+
+    source_suffix = "; ".join(source_l)
+
+    return source_suffix
+
+
 def get_cmor_source_id_definitions(
     source_collection: str, ev_project: ev_api.project_specs.ProjectSpecs
 ) -> dict[str, CMORSourceDefinition]:
@@ -855,10 +1002,17 @@ def get_cmor_source_id_definitions(
             try:
                 source_l.append(f"{mc.component}: {mc.name}")
             except AttributeError:
-                # Workaround while EMD models are broken
+                # Workaround while there aren't stable models in esgvoc
                 source_l.append(f"{mc['component']}: {mc['name']}")
 
-        source_suffix = "; ".join(source_l)
+        # Prefer the information from esgvoc,
+        # but fall back to reading the model components directly from the EMD
+        # if esgvoc doesn't (yet) expose them.
+        if source_l:
+            source_suffix = "; ".join(source_l)
+        else:
+            source_suffix = get_source_suffix_from_emd(term.drs_name)
+
         source = f"{term.drs_name}: {source_suffix}"
 
         res[term.drs_name] = CMORSourceDefinition(
@@ -943,7 +1097,7 @@ def get_cmor_drs_definition(
     directory_path_template_l = []
     directory_path_example_l = []
     for part in ev_project.drs_specs["directory"].parts:
-        print(f"Processing {part=}")
+        # print(f"Processing {part=}")
         if not part.is_required:
             raise NotImplementedError
 
@@ -1008,7 +1162,7 @@ def get_cmor_drs_definition(
             msg = f"Examples should be hard-coded: {part=}"
             raise AssertionError(msg)
 
-        print(f"Finished {part=}")
+        # print(f"Finished {part=}")
 
     # CMOR hard-codes "/" as a separator
     # and doesn't want the separator in the template.
@@ -1207,6 +1361,7 @@ def generate_cvs_table_esgvoc(project: str) -> CMORCVsTable:
             value = get_allowed_dict_for_attribute(
                 attr_property.attr_field_name, ev_project
             )
+            value = {k: cut_to_length(v) for k, v in value.items()}
 
         elif attr_property.attr_field_name == "Conventions":
             # As requested in: https://github.com/WCRP-CMIP/cmip7-cmor-tables/issues/78

@@ -1,7 +1,7 @@
 {
     "Header": {
         "Conventions": "CF-1.12",
-        "checksum": "md5: 4cb39694e71e7711d7ff333241963006",
+        "checksum": "md5: 29fa65f81205ccfc56a12986e8168d8b",
         "cmor_version": "3.15",
         "generic_levels": "alevel alevhalf",
         "int_missing_value": "-999",
@@ -11,7 +11,7 @@
         "positive": "",
         "product": "model-output",
         "realm": "atmos",
-        "table_date": "2026-06-22 17:37:39",
+        "table_date": "2026-09-15 12:08:04",
         "table_id": "atmos",
         "type": "real",
         "valid_max": "",
@@ -7405,6 +7405,22 @@
             "out_name": "zg",
             "positive": "",
             "standard_name": "geopotential_height",
+            "units": "m"
+        },
+        "zhalf_ti-alh-hxy-u": {
+            "cell_measures": "",
+            "cell_methods": "area: mean",
+            "comment": "",
+            "dimensions": [
+                "longitude",
+                "latitude",
+                "alevhalf"
+            ],
+            "long_name": "Altitude of Model Half-Levels",
+            "modeling_realm": "atmos",
+            "out_name": "zhalf",
+            "positive": "",
+            "standard_name": "height_above_reference_ellipsoid",
             "units": "m"
         },
         "ztp_tavg-u-hxy-u": {
