@@ -1855,6 +1855,10 @@
                 "source": "CanESM6-0-MR: aerosol: canam6-aerosol; atmosphere: canam6; land-surface: classicv1-5; ocean-biogeochemistry: cmoc; ocean: cannemo6-0; sea-ice: si3-cannemo",
                 "source_id": "CanESM6-0-MR"
             },
+            "CESM3": {
+                "source": "CESM3: aerosol: oslo-aero-v3; atmosphere: cam7; atmospheric-chemistry: oslo-tropstrat-v3; land-ice: cism3; land-surface: clm6; ocean-biogeochemistry: ihamocc2; ocean: mam6; sea-ice: cice6",
+                "source_id": "CESM3-LM"
+            },
             "EC-Earth3-ESM-1-1": {
                 "source": "EC-Earth3-ESM-1-1: atmosphere: ifs-cy36r4-l91; atmospheric-chemistry: co2box-v1-0; land-ice: pism-v1-2-line; land-surface: lpj-guess-4-1; ocean: nemo-v3-6",
                 "source_id": "EC-Earth3-ESM-1-1"
@@ -1886,6 +1890,10 @@
             "NorESM3-LM": {
                 "source": "NorESM3-LM: aerosol: oslo-aero-v3; atmosphere: cam7-nor; atmospheric-chemistry: oslo-tropstrat-v3; land-ice: cism3-nor; land-surface: clm6-fates-nor; ocean-biogeochemistry: ihamocc2; ocean: blom2; sea-ice: cice6-6-3-nor",
                 "source_id": "NorESM3-LM"
+            },
+            "NorESM3-MM": {
+                "source": "NorESM3-MM: aerosol: oslo-aero-v3; atmosphere: cam7-nor; atmospheric-chemistry: oslo-tropstrat-v3; land-ice: cism3-nor; land-surface: clm6-fates-nor; ocean-biogeochemistry: ihamocc2; ocean: blom2; sea-ice: cice6-6-3-nor",
+                "source_id": "NorESM3-MM"
             },
             "UKCM2-0-LL": {
                 "source": "UKCM2-0-LL: aerosol: glomap-mode; atmosphere: metum-ga9; land-surface: jules-gl9; ocean: nemo-gosi9; sea-ice: si3-gosi9",
