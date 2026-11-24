@@ -4,16 +4,28 @@
         "source_id": "ACCESS-ESM1-6"
     },
     "ARTS-ESM-L": {
-        "source": "ARTS-ESM-L: aerosol: inmaer2; atmosphere: inmam6l; land-surface: inmlnd2-1; ocean: inmom6l; sea-ice: inmice2l",
+        "source": "ARTS-ESM-L: aerosol: inmaer2; atmosphere: inmam6l; land-surface: inmlnd2-1; ocean-biogeochemistry: inmocm1-0; ocean: inmom6l; sea-ice: inmice2l",
         "source_id": "ARTS-ESM-L"
     },
     "ARTS-ESM-M": {
-        "source": "ARTS-ESM-M: aerosol: inmaer2; atmosphere: inmam6m; land-surface: inmlnd2-2; ocean: inmom6m; sea-ice: inmice2m",
+        "source": "ARTS-ESM-M: aerosol: inmaer2; atmosphere: inmam6m; land-surface: inmlnd2-2; ocean-biogeochemistry: inmocm1-0; ocean: inmom6m; sea-ice: inmice2m",
         "source_id": "ARTS-ESM-M"
     },
     "AWI-ESM3-4-2-veg-HR": {
         "source": "AWI-ESM3-4-2-veg-HR: atmosphere: openifs-48r1; land-surface: lpj-guess-4-1; ocean: fesom-2-7; sea-ice: fesim-2-7",
         "source_id": "AWI-ESM3-4-2-veg-HR"
+    },
+    "AWI-ESM3-5-2-cc-LR": {
+        "source": "AWI-ESM3-5-2-cc-LR: atmosphere: openifs-48r1; land-surface: lpj-guess-4-1; ocean-biogeochemistry: recom-3-1; ocean: fesom-2-8; sea-ice: fesim-2-8",
+        "source_id": "AWI-ESM3-5-2-cc-LR"
+    },
+    "BCC-CSM3-MR": {
+        "source": "BCC-CSM3-MR: atmosphere: bcc-agcm4-mr; land-surface: bcc-avim3; ocean: mom5-p25; sea-ice: cam-ice1",
+        "source_id": "BCC-CSM3-MR"
+    },
+    "BCC-ESM2": {
+        "source": "BCC-ESM2: atmosphere: bcc-agcm4-mr; atmospheric-chemistry: bcc-agcm4-chem; land-surface: bcc-avim3; ocean-biogeochemistry: hamocc6; ocean: mom5-p25; sea-ice: cam-ice1",
+        "source_id": "BCC-ESM2"
     },
     "CAS-ESM2-1-CSM": {
         "source": "CAS-ESM2-1-CSM: aerosol: cam5-mam3; atmosphere: iap-agcm5-0; atmospheric-chemistry: cam5-trop-mam3; land-surface: colm2014; ocean: licom-v2-0; sea-ice: cice4-0",
@@ -47,6 +59,10 @@
         "source": "FGOALS-f3-L: atmosphere: um7.3; land-surface: surfex-v8-modeling-platform; ocean: nemo-v3-6; sea-ice: gelato",
         "source_id": "FGOALS-f3-L"
     },
+    "FGOALS-g3-5": {
+        "source": "FGOALS-g3-5: atmosphere: gamil3; land-surface: cas-lsm; ocean: licom-v3-0; sea-ice: cice4-0",
+        "source_id": "FGOALS-g3-5"
+    },
     "GFDL-ESM4p5": {
         "source": "GFDL-ESM4p5: aerosol: gfdl-am4p5-aerosol; atmosphere: gfdl-am4p5; land-surface: gfdl-lm4p5; ocean-biogeochemistry: cobaltv3p1; ocean: gfdl-om4p5; sea-ice: sis2",
         "source_id": "GFDL-ESM4p5"
@@ -71,9 +87,25 @@
         "source": "ICON-XPP-1-1-ED: atmosphere: icon-a-1-1; land-surface: icon-land-1-1; ocean-biogeochemistry: ihamocc2; ocean: icon-o-1-1; sea-ice: fesim2",
         "source_id": "ICON-XPP-1-1-ED"
     },
+    "IITM-ESMv3-HR": {
+        "source": "IITM-ESMv3-HR: atmosphere: gfs; land-surface: noah-lsm; ocean-biogeochemistry: topaz1; ocean: mom4p1; sea-ice: sis1",
+        "source_id": "IITM-ESMv3-HR"
+    },
+    "IITM-ESMv3-LR": {
+        "source": "IITM-ESMv3-LR: atmosphere: gfs; land-surface: noah-lsm; ocean-biogeochemistry: topaz1; ocean: mom4p1; sea-ice: sis1",
+        "source_id": "IITM-ESMv3-LR"
+    },
+    "IPSL-CM6-ESMCO2": {
+        "source": "IPSL-CM6-ESMCO2: atmosphere: lmdz6-5; land-surface: orchidee-v2; ocean-biogeochemistry: pisces-v2; ocean: nemo-v3-6; sea-ice: lim3",
+        "source_id": "IPSL-CM6-ESMCO2"
+    },
     "KACE-2-0-G": {
         "source": "KACE-2-0-G: aerosol: glomap-mode; atmosphere: metum-ga7-1; atmospheric-chemistry: ukca; land-surface: jules-v5-3; ocean-biogeochemistry: topaz2; ocean: nemo3-6; sea-ice: cice5",
         "source_id": "KACE-2-0-G"
+    },
+    "KIOST-ESM2": {
+        "source": "KIOST-ESM2: aerosol: am4-2-aerosol; atmosphere: am4-2; atmospheric-chemistry: am4-2-chemistry; land-surface: lm4-2; ocean-biogeochemistry: cobaltv3; ocean: mom6-kiost-esm2; sea-ice: sis2-kiost-esm2",
+        "source_id": "KIOST-ESM2"
     },
     "MRI-ESM3-4": {
         "source": "MRI-ESM3-4: aerosol: masingar-mk-3r2; atmosphere: mri-agcm4-4; atmospheric-chemistry: mri-ccm3-2; land-surface: mri-agcm4-4-land-surface; ocean-biogeochemistry: mricom-5-4-ocean-biogeochemistry; ocean: mricom-5-4; sea-ice: mricom-5-4-sea-ice",
